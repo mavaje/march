@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "types": ["node", "@webgpu/types"]
+  },
+  "files": [
+    "main.ts"
+  ],
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "v0"]
+}

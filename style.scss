@@ -1,0 +1,47 @@
+body {
+    background-color: black;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: monospace;
+
+    canvas {
+        //image-rendering: pixelated;
+        //cursor: none;
+    }
+
+    .control-panel {
+        width: 256px;
+        margin: 64px;
+
+        .control {
+            color: white;
+            min-height: 24px;
+            margin-bottom: 8px;
+
+            input {
+                font-family: monospace;
+
+                &[type=checkbox] {
+                    float: right;
+                }
+
+                &[type=number] {
+                    color: white;
+                    background-color: black;
+                    outline: none;
+                    border: none;
+                    width: 25%;
+                    float: right;
+                    text-align: right;
+                }
+
+                &[type=range] {
+                    width: 100%;
+                }
+            }
+        }
+    }
+}
