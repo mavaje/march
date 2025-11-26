@@ -1,4 +1,4 @@
-import {f32, struct, vec3f} from "../byte-packing/byte-types";
+import {f32, struct} from "../byte-packing/byte-types";
 import {Packer} from "../byte-packing/packer";
 import {Solid} from "./solid";
 
@@ -20,9 +20,8 @@ export class Composite extends Solid {
     ) {
         super();
 
-        this.packer = new Packer(struct({
+        this.packer = new Packer(struct('Composite', {
             smoothing: f32,
-            unused: vec3f,
         }));
     }
 

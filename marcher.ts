@@ -10,6 +10,7 @@ import {Cube} from "./solids/cube";
 import {Cylinder} from "./solids/cylinder";
 import {Cone} from "./solids/cone";
 import { Torus } from "./solids/torus";
+import {Material} from "./solids/material";
 
 type Binding = {
     index: number;
@@ -91,8 +92,16 @@ export class Marcher {
 
         this.load_model(
             Composite.union(
-                new Cube(),
-                new Torus(),
+                new Cube().with_material(new Material(
+                    new DOMPoint(0.25, 0, 0),
+                    new DOMPoint(0.75, 0.25, 0),
+                    new DOMPoint(1, 0.75, 0.75),
+                )),
+                new Torus().with_material(new Material(
+                    new DOMPoint(0.5, 0.25, 0),
+                    new DOMPoint(0.75, 0.5, 0),
+                    new DOMPoint(1, 1, 0.75),
+                )),
             ),
         );
 
@@ -291,14 +300,18 @@ export class Marcher {
             require('./wgsl/render.wgsl'),
         ].join('\n');
 
+        code += struct_declaration(Config.struct);
+        code += struct_declaration(Frame.struct);
+        code += struct_declaration(Material.struct);
+
         SOLID_TYPES.forEach(solid => {
             const name = new solid().name();
-            const struct_name = name[0].toUpperCase() + name.slice(1);
+            const struct = new solid().struct();
 
-            code += struct_declaration(struct_name, new solid().struct());
+            code += struct_declaration(struct);
 
             code += `@group(solids) @binding(${name})\n`;
-            code += `var<uniform> ${name}_list: array<${struct_name}, max_typed_solid_count>;\n`;
+            code += `var<uniform> ${name}_list: array<${struct.struct_name}, max_typed_solid_count>;\n`;
 
             code += require(`./wgsl/solid/${name}.wgsl`);
         });

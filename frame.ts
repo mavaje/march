@@ -3,7 +3,7 @@ import {Packer} from "./byte-packing/packer";
 
 export class Frame {
 
-    private packer = new Packer(struct({
+    private packer = new Packer(struct('Frame', {
         tick: u32,
         time: u32,
         delta: u32,
@@ -26,7 +26,7 @@ export class Frame {
     }
 
     buffer() {
-        this.packer.set_struct(this);
+        this.packer.set(this);
 
         return this.packer.buffer;
     }

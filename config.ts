@@ -3,7 +3,7 @@ import {Packer} from "./byte-packing/packer";
 
 export class Config {
 
-    private packer = new Packer(struct({
+    private packer = new Packer(struct('Config', {
         ambient_light: f32,
         diffuse_light: f32,
         specular_light: f32,
@@ -15,7 +15,7 @@ export class Config {
     static struct = new Config().packer.type;
 
     constructor(
-        public ambient_light: number = 0.25,
+        public ambient_light: number = 1,
         public diffuse_light: number = 1,
         public specular_light: number = 1,
         public shadows: boolean = true,
@@ -26,7 +26,7 @@ export class Config {
     ) {}
 
     buffer() {
-        this.packer.set_struct(this);
+        this.packer.set(this);
 
         this.sun_altitude = Math.max(-Math.PI / 2, Math.min(this.sun_altitude, Math.PI / 2));
         this.view_altitude = Math.max(-Math.PI / 2, Math.min(this.view_altitude, Math.PI / 2));

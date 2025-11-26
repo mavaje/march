@@ -1,5 +1,6 @@
 import {StructType} from "../byte-packing/byte-types";
 import {Packer} from "../byte-packing/packer";
+import {Material} from "./material";
 
 export abstract class Solid {
 
@@ -8,6 +9,15 @@ export abstract class Solid {
     static name: string;
 
     public index: number;
+
+    protected constructor(
+        public material: Material = new Material(),
+    ) {}
+
+    with_material(material: Material) {
+        this.material = material;
+        return this;
+    }
 
     name() {
         return this.constructor.name.toLowerCase();
@@ -18,7 +28,7 @@ export abstract class Solid {
     }
 
     buffer() {
-        this.packer.set_struct(this);
+        this.packer.set(this);
 
         return this.packer.buffer;
     }

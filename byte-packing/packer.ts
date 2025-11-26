@@ -1,95 +1,98 @@
 import {ByteType} from "./byte-types";
 
-export class Packer<T extends ByteType> {
-
-    protected i32s: Int32Array;
-    protected u32s: Uint32Array;
-    protected f32s: Float32Array;
+export class Packer<T extends ByteType = ByteType> {
+    protected members: Record<string, Packer> = {};
 
     constructor(
         public type: T,
         public buffer = new ArrayBuffer(type.size),
+        protected offset = 0,
     ) {
-        this.i32s = new Int32Array(this.buffer);
-        this.u32s = new Uint32Array(this.buffer);
-        this.f32s = new Float32Array(this.buffer);
+        if (type.name === 'struct') {
+            Object.entries(type.struct_members).forEach(([key, member]) => {
+                this.members[key] = new Packer(
+                    member,
+                    this.buffer,
+                    this.offset + type.struct_offsets[key],
+                );
+            });
+        }
     }
 
-    private array_for_type(type: ByteType): Int32Array | Uint32Array | Float32Array {
+    private array(type: ByteType = this.type): Int32Array | Uint32Array | Float32Array {
         switch (type.name) {
             case 'i32':
-                return this.i32s;
+                return new Int32Array(this.buffer, this.offset);
             case 'bool':
             case 'u32':
-                return this.u32s;
+                return new Uint32Array(this.buffer, this.offset);
             case 'f32':
-                return this.f32s;
+                return new Float32Array(this.buffer, this.offset);
             case 'vec':
-                return this.array_for_type(type.vec_type);
+                return this.array(type.vec_type);
             case 'mat':
-                return this.array_for_type(type.mat_type);
+                return this.array(type.mat_type);
             case 'array':
-                return this.array_for_type(type.array_type);
+                return this.array(type.array_type);
             default:
                 throw new Error(`Can't directly get type ${this.type.name}`);
         }
     }
 
-    set(value: boolean|number|number[]|DOMPoint|DOMMatrix, offset?: number): void;
-    set(key: string, value: boolean|number|number[]|DOMPoint|DOMMatrix): void;
+    set(value: boolean|number|object, offset?: number): void;
+    set(dot_key: string, value: boolean|number|object, offset?: number): void;
     set(...args: any[]): void {
         let value: number[];
-        let type: ByteType = this.type;
         let offset: number;
-        let array: Int32Array | Uint32Array | Float32Array;
 
-        if (type.name === 'struct' && typeof args[0] === 'string') {
-            let key: string;
-            [key, value] = args;
-            offset = type.struct_offsets[key] / 4;
-            type = type.struct_members[key];
-            array = this.array_for_type(type);
+        if (typeof args[0] === 'string') {
+            let dot_key: string;
+            [dot_key, value, offset = 0] = args;
+            const [key, ...rest_keys] = dot_key.split('.');
+
+            if (rest_keys.length > 0) {
+                this.members[key].set(rest_keys.join('.'), value, offset);
+            } else {
+                this.members[key].set(value, offset);
+            }
+
+            return;
         } else {
             [value, offset = 0] = args;
-            array = this.array_for_type(this.type);
         }
 
-        if (type.name === 'vec' && value instanceof DOMPoint) {
-            value = [value.x, value.y, value.z, value.w].slice(0, type.vec_size);
-        }
-
-        if (type.name === 'mat' && value instanceof DOMMatrix) {
-            if (type.mat_size[0] === 2) {
-                value = [
-                    value.m11, value.m12,
-                    value.m21, value.m22,
-                    value.m31, value.m32,
-                    value.m41, value.m42,
-                ].slice(0, 2 * type.mat_size[1]);
-            } else {
-                value = [
-                    value.m11, value.m21, value.m31, value.m41,
-                    value.m12, value.m22, value.m32, value.m42,
-                    value.m13, value.m23, value.m33, value.m43,
-                    value.m14, value.m24, value.m34, value.m44,
-                    // value.m11, value.m12, value.m13, value.m14,
-                    // value.m21, value.m22, value.m23, value.m24,
-                    // value.m31, value.m32, value.m33, value.m34,
-                    // value.m41, value.m42, value.m43, value.m44,
-                ].slice(0, type.mat_size[0] * type.mat_size[1]);
+        if (this.type.name === 'struct') {
+            Object.keys(this.type.struct_members).forEach(key => {
+                if (key in value) {
+                    this.set(key, value[key]);
+                }
+            });
+        } else {
+            if (this.type.name === 'vec' && value instanceof DOMPoint) {
+                value = [value.x, value.y, value.z, value.w].slice(0, this.type.vec_size);
             }
+
+            if (this.type.name === 'mat' && value instanceof DOMMatrix) {
+                if (this.type.mat_size[0] === 2) {
+                    value = [
+                        value.m11, value.m12,
+                        value.m21, value.m22,
+                        value.m31, value.m32,
+                        value.m41, value.m42,
+                    ].slice(0, 2 * this.type.mat_size[1]);
+                } else {
+                    value = [
+                        value.m11, value.m21, value.m31, value.m41,
+                        value.m12, value.m22, value.m32, value.m42,
+                        value.m13, value.m23, value.m33, value.m43,
+                        value.m14, value.m24, value.m34, value.m44,
+                    ].slice(0, this.type.mat_size[0] * this.type.mat_size[1]);
+                }
+            }
+
+            if (!Array.isArray(value)) value = [value];
+
+            this.array().set(value, offset / 4);
         }
-
-        if (!Array.isArray(value)) value = [value];
-
-        array.set(value, offset);
-    }
-
-    set_struct(members: Record<string, any>) {
-        if (this.type.name !== 'struct') throw new Error('Can only set struct members on structs');
-
-        Object.keys(this.type.struct_members).forEach(key => {
-            this.set(key, members[key]);
-        });
     }
 }

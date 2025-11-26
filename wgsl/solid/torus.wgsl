@@ -9,5 +9,6 @@ fn hit_torus(origin: vec3f, torus: Torus) -> Hit {
             torus.radius_major * normalize(relative_origin.xy),
             0.0,
         )),
+        torus.material,
      );
 }

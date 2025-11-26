@@ -28,6 +28,7 @@ export type ArrayType = {
 
 export type StructType = {
     readonly name: 'struct';
+    readonly struct_name: string;
     readonly struct_members: Record<string, ByteType>;
     readonly struct_offsets: Record<string, number>;
 } & ByteTypeBase;
@@ -119,15 +120,7 @@ export function array(type: ByteType, n: number = NaN): ArrayType {
     };
 }
 
-export function struct(...members: ByteType[]): StructType;
-export function struct(members: Record<string, ByteType>): StructType;
-export function struct(...args: any): StructType {
-    let members: Record<string, ByteType>;
-    if ('name' in args[0] || args.length > 1) {
-        members = args;
-    } else {
-        members = args[0];
-    }
+export function struct(name: string, members: Record<string, ByteType>): StructType {
     const align = Math.max(...Object.values(members).map(m => m.align));
     const offsets: Record<string, number> = {};
     const offset: number = Object.entries(members).reduce(
@@ -140,7 +133,7 @@ export function struct(...args: any): StructType {
         name: 'struct',
         size: round_up(align, offset),
         align,
-        // struct_members: Object.fromEntries(Object.entries(members)),
+        struct_name: name,
         struct_members: members,
         struct_offsets: offsets,
     };
@@ -157,13 +150,15 @@ export function type_name(type: ByteType): string {
         case 'array':
             const array_type = type_name(type.array_type);
             return `array<${array_type}, ${type.array_size}>`;
+        case 'struct':
+            return type.struct_name;
         default:
             return type.name;
     }
 }
 
-export function struct_declaration(name: string, struct: StructType): string {
-    return `struct ${name} {${
+export function struct_declaration( struct: StructType): string {
+    return `struct ${struct.struct_name} {${
         Object.entries(struct.struct_members)
             .map(([key, type]) => `${key}: ${type_name(type)},`)
             .join(' ')

@@ -1,19 +1,3 @@
-struct Config {
-    ambient_light: f32,
-    diffuse_light: f32,
-    specular_light: f32,
-    shadows: u32,
-    sun_direction: vec3f,
-    view_direction: vec3f,
-}
-
-struct Frame {
-    tick: u32,
-    time: u32,
-    delta: u32,
-    solid_count: u32,
-}
-
 const PI: f32 = 3.14159265358979323846;
 const TAU: f32 = 6.28318530717958647692;
 

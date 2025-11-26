@@ -6,6 +6,7 @@ struct Ray {
 struct Hit {
     distance: f32,
     normal: vec3f,
+    material: Material,
 }
 
 struct March {
@@ -39,11 +40,13 @@ fn render(
     var alpha: f32 = 0.0;
 
     let ray_march = march(ray);
-    let hit = ray_march.hit;
 
     if (march_hit(ray_march)) {
+        let normal = ray_march.hit.normal;
+        let material = ray_march.hit.material;
+
         // ambient
-        colour += vec3f(1.0, 0.4, 0.0) * config.ambient_light;
+        colour += material.ambient * config.ambient_light;
 
         var in_light: bool;
 
@@ -58,14 +61,14 @@ fn render(
 
         if (in_light) {
             // diffuse
-            colour += vec3f(1.0, 0.75, 0.0)
+            colour += material.diffuse
                 * config.diffuse_light
-                * max(-dot(config.sun_direction, hit.normal), 0.0);
+                * max(-dot(config.sun_direction, normal), 0.0);
 
             // specular
-            colour += vec3f(1.0, 1.0, 1.0)
+            colour += material.specular
                 * config.specular_light
-                * pow(max(-dot(reflect(config.sun_direction, hit.normal), ray.direction), 0.0), 16.0);
+                * pow(max(-dot(reflect(config.sun_direction, normal), ray.direction), 0.0), 16.0);
         }
 
         alpha = 1.0;

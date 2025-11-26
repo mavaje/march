@@ -1,6 +1,7 @@
 import {f32, struct, vec3f} from "../byte-packing/byte-types";
 import {Packer} from "../byte-packing/packer";
 import {Solid} from "./solid";
+import {Material} from "./material";
 
 export class Torus extends Solid {
 
@@ -10,13 +11,15 @@ export class Torus extends Solid {
         public centre: DOMPoint = new DOMPoint(0, 0, 0),
         public radius_major: number = 0.75,
         public radius_minor: number = 0.25,
+        material?: Material,
     ) {
-        super();
+        super(material);
 
-        this.packer = new Packer(struct({
+        this.packer = new Packer(struct('Torus', {
             centre: vec3f,
             radius_major: f32,
             radius_minor: f32,
+            material: Material.struct,
         }));
     }
 }
