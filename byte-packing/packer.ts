@@ -61,7 +61,7 @@ export class Packer<T extends ByteType = ByteType> {
             [value, offset = 0] = args;
         }
 
-        if (this.type.name === 'struct') {
+        if (this.type.name === 'struct' && value && typeof value === 'object') {
             Object.keys(this.type.struct_members).forEach(key => {
                 if (key in value) {
                     this.set(key, value[key]);

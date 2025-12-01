@@ -1,4 +1,5 @@
 import {dot_assign, dot_read} from "./dot";
+import {Colour, ColourLike} from "./colour";
 
 export class Controls {
 
@@ -9,10 +10,7 @@ export class Controls {
         this.element.classList.add('control-panel');
     }
 
-    reading(
-        name: string,
-        read: () => number,
-    ) {
+    private control(name: string) {
         const control = this.element.appendChild(document.createElement('div'));
         control.classList.add('control');
 
@@ -20,6 +18,21 @@ export class Controls {
         label.classList.add('control-label');
         label.innerText = name;
         label.htmlFor = name;
+
+        return control;
+    }
+
+    group(name: string) {
+        const rule = this.element.appendChild(document.createElement('div'));
+        rule.classList.add('rule');
+        rule.innerText = name;
+    }
+
+    reading(
+        name: string,
+        read: () => number,
+    ) {
+        const control = this.control(name);
 
         const input = control.appendChild(document.createElement('input'));
         input.classList.add('control-input');
@@ -39,13 +52,7 @@ export class Controls {
         value: boolean,
         on_change: (value: boolean) => void,
     ) {
-        const control = this.element.appendChild(document.createElement('div'));
-        control.classList.add('control');
-
-        const label = control.appendChild(document.createElement('label'));
-        label.classList.add('control-label');
-        label.innerText = name;
-        label.htmlFor = name;
+        const control = this.control(name);
 
         const input = control.appendChild(document.createElement('input'));
         input.classList.add('control-check');
@@ -78,13 +85,7 @@ export class Controls {
         max: number = value * 2,
         step: number = null,
     ) {
-        const control = this.element.appendChild(document.createElement('div'));
-        control.classList.add('control');
-
-        const label = control.appendChild(document.createElement('label'));
-        label.classList.add('control-label');
-        label.innerText = name;
-        label.htmlFor = name;
+        const control = this.control(name);
 
         const input = control.appendChild(document.createElement('input'));
         input.classList.add('control-input');
@@ -127,6 +128,36 @@ export class Controls {
             min,
             max,
             step,
+        );
+    }
+
+    colour(
+        name: string,
+        value: ColourLike,
+        on_change: (value: Colour) => void,
+    ) {
+        const control = this.control(name);
+
+        const input = control.appendChild(document.createElement('input'));
+        input.classList.add('control-colour');
+        input.type = 'color';
+        input.id = name;
+        input.name = name;
+        input.value = Colour.from(value).hex();
+        input.addEventListener('input', () => {
+            on_change(Colour.from_string(input.value));
+        });
+    }
+
+    field_colour(
+        name: string,
+        object: object,
+        key: string,
+    ) {
+        return this.colour(
+            name,
+            dot_read(object, key),
+            value => dot_assign(object, key, value),
         );
     }
 }

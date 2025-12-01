@@ -1,18 +1,10 @@
-fn negative_hit(hit: Hit) -> Hit {
-    return Hit(
-        -hit.distance,
-        -hit.normal,
-        hit.material,
-    );
-}
-
-fn smooth_union(hit_a: Hit, hit_b: Hit, radius: f32) -> Hit {
+fn hit_union(hit_a: Hit, hit_b: Hit, radius: f32) -> Hit {
     if (hit_a.distance < radius &&
         hit_b.distance < radius
     ) {
         let offset = vec2f(hit_a.distance, hit_b.distance) - radius;
         let angle = atan(offset.y / offset.x);
-        let blend = angle * 2.0 / PI;
+        let blend = abs(angle * 2.0 / PI);
         return Hit(
             radius - length(offset),
             normalize(
@@ -32,16 +24,4 @@ fn smooth_union(hit_a: Hit, hit_b: Hit, radius: f32) -> Hit {
     } else {
         return hit_b;
     }
-}
-
-fn smooth_intersection(hit_a: Hit, hit_b: Hit, radius: f32) -> Hit {
-    return negative_hit(smooth_union(
-        negative_hit(hit_a),
-        negative_hit(hit_b),
-        radius,
-    ));
-}
-
-fn smooth_difference(hit_a: Hit, hit_b: Hit, radius: f32) -> Hit {
-    return smooth_intersection(hit_a, negative_hit(hit_b), radius);
 }

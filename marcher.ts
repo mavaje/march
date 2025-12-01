@@ -1,16 +1,20 @@
 import {array, struct_declaration} from "./byte-packing/byte-types";
-import {Frame} from "./frame";
 import {Controls} from "./controls";
 import {Config} from "./config";
-import {Sphere} from "./solids/sphere";
-import {Solid} from "./solids/solid";
-import {Composite} from "./solids/composite";
-import {Plane} from "./solids/plane";
-import {Cube} from "./solids/cube";
-import {Cylinder} from "./solids/cylinder";
-import {Cone} from "./solids/cone";
-import { Torus } from "./solids/torus";
-import {Material} from "./solids/material";
+import {Sphere} from "./solid/sphere";
+import {Solid} from "./solid/solid";
+import {Composite} from "./solid/composite";
+import {Plane} from "./solid/plane";
+import {Cube} from "./solid/cube";
+import {Cylinder} from "./solid/cylinder";
+import {Cone} from "./solid/cone";
+import { Torus } from "./solid/torus";
+import {Material} from "./material";
+import {Sun} from "./light/sun";
+import {Union} from "./solid/union";
+import {Intersection} from "./solid/intersection";
+import {Difference} from "./solid/difference";
+import {MarchElement} from "./march-element";
 
 type Binding = {
     index: number;
@@ -18,7 +22,9 @@ type Binding = {
 };
 
 const SOLID_TYPES = [
-    Composite,
+    Union,
+    Intersection,
+    Difference,
     Plane,
     Cube,
     Sphere,
@@ -27,7 +33,13 @@ const SOLID_TYPES = [
     Torus,
 ];
 
-export class Marcher {
+export class Marcher extends MarchElement {
+
+    static name = 'marcher';
+    static observedAttributes = [
+        'width',
+        'height',
+    ];
 
     private const = {
         render_workgroup_size: [16, 16],
@@ -41,7 +53,6 @@ export class Marcher {
             bindings: {
                 texture: {index: 0} as Binding,
                 config: {index: 1} as Binding,
-                frame: {index: 2} as Binding,
             }
         },
         solids: {
@@ -55,11 +66,10 @@ export class Marcher {
         },
     }
 
+    private canvas: HTMLCanvasElement;
     private context: GPUCanvasContext = null;
     private device: GPUDevice = null;
     private pipeline: GPUComputePipeline = null;
-
-    public canvas: HTMLCanvasElement;
 
     public config = new Config();
 
@@ -68,18 +78,15 @@ export class Marcher {
     public root_solid: Solid = null;
     public solids: Record<string, Solid[]> = {};
 
-    public frame = new Frame();
+    constructor() {
+        super();
 
-    constructor(
-        public width: number,
-        public height: number,
-    ) {
-        this.canvas = document.createElement('canvas');
-        this.canvas.width = width;
-        this.canvas.height = height;
+        const shadow = this.attachShadow({mode: 'open'});
+        this.canvas =  shadow.appendChild(document.createElement('canvas'));
+        this.canvas.style.display = 'block';
 
         let rotating: DOMPoint = null;
-        this.canvas.addEventListener('pointerdown', ({x, y}: PointerEvent) => rotating = new DOMPoint(x, y));
+        this.canvas.addEventListener('pointerdown', ({x, y}) => rotating = new DOMPoint(x, y));
         document.addEventListener('pointerup', () => rotating = null);
 
         document.addEventListener('pointermove', ({x, y}) => {
@@ -87,70 +94,24 @@ export class Marcher {
                 this.config.view_altitude += (y - rotating.y) / 100;
                 this.config.view_azimuth -= (x - rotating.x) / 100;
                 rotating = new DOMPoint(x, y);
+                this.render();
             }
-        });
-
-        this.load_model(
-            Composite.union(
-                new Cube().with_material(new Material(
-                    new DOMPoint(0.25, 0, 0),
-                    new DOMPoint(0.75, 0.25, 0),
-                    new DOMPoint(1, 0.75, 0.75),
-                )),
-                new Torus().with_material(new Material(
-                    new DOMPoint(0.5, 0.25, 0),
-                    new DOMPoint(0.75, 0.5, 0),
-                    new DOMPoint(1, 1, 0.75),
-                )),
-            ),
-        );
-
-        this.controls.reading(
-            'FPS',
-            () => Math.round(1000 / this.frame.delta),
-        );
-
-        this.controls.field_slider('ambient light level', this.config, 'ambient_light', 0, 1);
-        this.controls.field_slider('diffuse light level', this.config, 'diffuse_light', 0, 1);
-        this.controls.field_slider('specular light level', this.config, 'specular_light', 0, 1);
-        this.controls.field_checkbox('shadows', this.config, 'shadows');
-        this.controls.field_slider('sun azimuth', this.config, 'sun_azimuth', -Math.PI, Math.PI);
-        this.controls.field_slider('sun altitude', this.config, 'sun_altitude', -Math.PI / 2, Math.PI / 2);
-
-        Object.entries({
-            composite: {
-                smoothing: [0, 1],
-            },
-            plane: {
-                distance: [-1, 1],
-            },
-            cube: {
-                'centre.x': [-1, 1],
-                radius: [0, 1],
-            },
-            sphere: {
-                radius: [0, 1],
-            },
-            cylinder: {
-                radius: [0, 1],
-            },
-            cone: {
-                angle: [0, Math.PI / 2],
-            },
-            torus: {
-                radius_major: [0, 1],
-                radius_minor: [0, 1],
-            },
-        }).forEach(([type, fields]) => {
-            this.solids[type]?.forEach((solid: Solid, i) => {
-                Object.entries(fields).forEach(([field, range]) => {
-                    this.controls.field_slider(`${solid.name()} ${i} ${field}`, solid, field, ...range);
-                });
-            });
         });
     }
 
-    async initialise() {
+    connectedCallback() {
+        this.initialise();
+    }
+
+    connectedMoveCallback() {
+        this.initialise();
+    }
+
+    attributeChangedCallback() {
+        this.initialise();
+    }
+
+    private async setup() {
         if (!navigator.gpu) {
             throw new Error('WebGPU not supported');
         }
@@ -169,13 +130,16 @@ export class Marcher {
             console.error(`WebGPU device lost: ${info.message}`);
 
             if (info.reason !== 'destroyed') {
-                this.initialise();
+                this.setup();
             }
         });
 
         const format = supports_bgra
             ? navigator.gpu.getPreferredCanvasFormat()
             : 'rgba8unorm';
+
+        this.canvas.width = this.attribute_numeric('width', 512);
+        this.canvas.height = this.attribute_numeric('height', 512);
 
         this.context = this.canvas.getContext('webgpu');
         this.context.configure({
@@ -189,11 +153,7 @@ export class Marcher {
 
         const module = this.device.createShaderModule({
             label: 'module',
-            code: this.load_code()
-                .replaceAll('canvas_width', `${this.width}`)
-                .replaceAll('canvas_height', `${this.height}`)
-                .replaceAll('canvas_area', `${this.width * this.height}`)
-                .replaceAll('canvas_format', format),
+            code: this.load_code({canvas_format: format}),
         });
 
         const global_bind_group_layout = this.device.createBindGroupLayout({
@@ -209,11 +169,6 @@ export class Marcher {
                 },
                 {
                     binding: this.groups.global.bindings.config.index,
-                    visibility: GPUShaderStage.COMPUTE,
-                    buffer: {type: 'uniform'},
-                },
-                {
-                    binding: this.groups.global.bindings.frame.index,
                     visibility: GPUShaderStage.COMPUTE,
                     buffer: {type: 'uniform'},
                 },
@@ -253,13 +208,6 @@ export class Marcher {
                 | GPUBufferUsage.COPY_DST,
         });
 
-        this.groups.global.bindings.frame.buffer = this.device.createBuffer({
-            label: `frame buffer`,
-            size: Frame.struct.size,
-            usage: GPUBufferUsage.UNIFORM
-                | GPUBufferUsage.COPY_DST,
-        });
-
         SOLID_TYPES.forEach(solid => {
             this.groups.solids.bindings[solid.name].buffer = this.device.createBuffer({
                 label: `${solid.name} buffer`,
@@ -270,13 +218,17 @@ export class Marcher {
         });
     }
 
-    load_model(solid: Solid, is_root = true) {
+    private load_model(solid: Solid, is_root = true) {
+        if (is_root) {
+            this.solids = {};
+        }
+
         this.solids[solid.name()] ??= [];
         this.solids[solid.name()].push(solid);
 
         if (solid instanceof Composite) {
-            this.load_model(solid.solid_a, false);
-            this.load_model(solid.solid_b, false);
+            solid.child_solids()
+                .forEach(solid => this.load_model(solid, false));
         }
 
         if (is_root) {
@@ -289,26 +241,29 @@ export class Marcher {
                     i++;
                 });
             });
-
-            this.frame.solid_count = i;
         }
     }
 
-    load_code(): string {
+    private load_code(replacements: Record<string, string> = {}): string {
         let code: string =[
             require('./wgsl/global.wgsl'),
             require('./wgsl/render.wgsl'),
         ].join('\n');
 
         code += struct_declaration(Config.struct);
-        code += struct_declaration(Frame.struct);
+        code += struct_declaration(Sun.struct);
         code += struct_declaration(Material.struct);
 
+        const declared_structs: string[] = [];
         SOLID_TYPES.forEach(solid => {
-            const name = new solid().name();
-            const struct = new solid().struct();
+            const instance = new solid();
+            const name = instance.name();
+            const struct = instance.struct();
 
-            code += struct_declaration(struct);
+            if (!declared_structs.includes(struct.struct_name)) {
+                code += struct_declaration(struct);
+                declared_structs.push(struct.struct_name);
+            }
 
             code += `@group(solids) @binding(${name})\n`;
             code += `var<uniform> ${name}_list: array<${struct.struct_name}, max_typed_solid_count>;\n`;
@@ -340,26 +295,23 @@ export class Marcher {
                     });
             });
 
-        code = code.replace(
-            'HIT_INJECTION',
-            this.root_solid.hit_code(),
-        );
+        Object.entries(replacements)
+            .forEach(([target, replacement]) => {
+                code = code.replaceAll(target, replacement);
+            });
 
-        return code;
+        return code
+            .replaceAll('HIT_INJECTION', this.root_solid.hit_code())
+            .replaceAll('canvas_width', `${this.canvas.width}`)
+            .replaceAll('canvas_height', `${this.canvas.height}`)
+            .replaceAll('canvas_area', `${this.canvas.width * this.canvas.height}`);
     }
 
-    render() {
-
+    render_frame() {
         this.device.queue.writeBuffer(
             this.groups.global.bindings.config.buffer,
             0,
             this.config.buffer(),
-        );
-
-        this.device.queue.writeBuffer(
-            this.groups.global.bindings.frame.buffer,
-            0,
-            this.frame.buffer(),
         );
 
         Object.entries(this.solids).forEach(([type, solids]: [string, Solid[]]) => {
@@ -383,10 +335,6 @@ export class Marcher {
                 {
                     binding: this.groups.global.bindings.config.index,
                     resource: {buffer: this.groups.global.bindings.config.buffer},
-                },
-                {
-                    binding: this.groups.global.bindings.frame.index,
-                    resource: {buffer: this.groups.global.bindings.frame.buffer},
                 },
             ],
         });
@@ -415,8 +363,8 @@ export class Marcher {
 
         pass.setPipeline(this.pipeline);
         pass.dispatchWorkgroups(
-            Math.floor(this.width / this.const.render_workgroup_size[0]),
-            Math.floor(this.height / this.const.render_workgroup_size[1]),
+            Math.floor(this.canvas.width / this.const.render_workgroup_size[0]),
+            Math.floor(this.canvas.height / this.const.render_workgroup_size[1]),
         );
 
         pass.end();
@@ -424,9 +372,29 @@ export class Marcher {
         this.device.queue.submit([encoder.finish()]);
     }
 
-    render_cycle(time: number = 0) {
-        this.frame.increment(time);
-        this.render();
-        requestAnimationFrame(time => this.render_cycle(time));
+    initialise() {
+        for (let child of this.children) {
+            if (child instanceof Sun) {
+                this.config.sun = child;
+            }
+
+            if (child instanceof Solid) {
+                this.load_model(child);
+            }
+        }
+
+        this.setup().then(() => this.render());
+    }
+
+    private render_frame_id = null;
+    render() {
+        this.config.sun.direction = [
+            Math.sin(this.config.view_azimuth) * Math.cos(this.config.view_altitude),
+            -Math.sin(this.config.view_altitude),
+            Math.cos(this.config.view_azimuth) * Math.cos(this.config.view_altitude),
+        ];
+
+        window.cancelAnimationFrame(this.render_frame_id);
+        this.render_frame_id = window.requestAnimationFrame(() => this.render_frame());
     }
 }
