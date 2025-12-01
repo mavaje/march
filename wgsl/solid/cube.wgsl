@@ -5,13 +5,13 @@ fn hit_cube(origin: vec3f, cube: Cube) -> Hit {
     let hit_y = Hit(distance.y, vec3f(0.0, sign(offset.y), 0.0), cube.material);
     let hit_z = Hit(distance.z, vec3f(0.0, 0.0, sign(offset.z)), cube.material);
 
-    return smooth_intersection(
-        smooth_intersection(
+    return hit_intersection(
+        hit_intersection(
             hit_x,
             hit_y,
-            cube.radius,
+            cube.smoothing,
         ),
         hit_z,
-        cube.radius,
+        cube.smoothing,
     );
 }

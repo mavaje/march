@@ -1,17 +1,18 @@
 import {f32, struct, vec3f} from "../byte-packing/byte-types";
 import {Packer} from "../byte-packing/packer";
-import {Solid} from "./solid";
-import {Material} from "./material";
+import {Material} from "../material";
+import {Primitive} from "./primitive";
+import {Vector} from "../vector";
 
-export class Cone extends Solid {
+export class Cone extends Primitive {
 
     static name = 'cone';
+    static observedAttributes = ['angle', 'centre'];
 
-    constructor(
-        public centre: DOMPoint = new DOMPoint(0, 0, 0),
-        public angle: number = Math.PI / 4,
-        material?: Material,
-    ) {
+    public angle: number;
+    public centre: Vector;
+
+    constructor(material?: Material) {
         super(material);
 
         this.packer = new Packer(struct('Cone', {
@@ -20,6 +21,11 @@ export class Cone extends Solid {
             cos: f32,
             material: Material.struct,
         }));
+    }
+
+    update() {
+        this.angle = this.attribute_numeric('angle', Math.PI / 4,);
+        this.centre = this.attribute_vector('centre', [0, 0, 0]);
     }
 
     get sin() {

@@ -3,30 +3,56 @@ body {
     height: 100vh;
     margin: 0;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     font-family: monospace;
+    overflow: hidden;
 
-    canvas {
-        //image-rendering: pixelated;
-        //cursor: none;
+    .canvas-view {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .control-panel {
         width: 256px;
-        margin: 64px;
+        padding: 10vh 16px;
+        max-height: 80vh;
+        overflow-y: auto;
+
+        .rule {
+            color: white;
+            min-height: 24px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            text-transform: uppercase;
+
+            &:before,
+            &:after {
+                flex: 1;
+                content: '';
+                background-color: white;
+                height: 1px;
+                margin-inline: 8px;
+            }
+        }
 
         .control {
             color: white;
             min-height: 24px;
             margin-bottom: 8px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
 
             input {
                 font-family: monospace;
-
-                &[type=checkbox] {
-                    float: right;
-                }
 
                 &[type=number] {
                     color: white;
@@ -34,12 +60,11 @@ body {
                     outline: none;
                     border: none;
                     width: 25%;
-                    float: right;
                     text-align: right;
                 }
 
                 &[type=range] {
-                    width: 100%;
+                    flex: 0 0 100%;
                 }
             }
         }

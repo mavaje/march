@@ -1,8 +1,8 @@
 import {StructType} from "../byte-packing/byte-types";
 import {Packer} from "../byte-packing/packer";
-import {Material} from "./material";
+import {MarchComponent} from "../march-component";
 
-export abstract class Solid {
+export abstract class Solid extends MarchComponent {
 
     protected packer: Packer<StructType>;
 
@@ -10,17 +10,8 @@ export abstract class Solid {
 
     public index: number;
 
-    protected constructor(
-        public material: Material = new Material(),
-    ) {}
-
-    with_material(material: Material) {
-        this.material = material;
-        return this;
-    }
-
     name() {
-        return this.constructor.name.toLowerCase();
+        return this.constructor.name;
     }
 
     struct() {

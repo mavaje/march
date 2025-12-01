@@ -23,52 +23,69 @@ fn render(
     id: vec3u
 ) {
     let pixel = id.xy;
+    let screen = 2.0 * vec2f(pixel) / canvas_size - 1.0;
+
     let right = normalize(cross((config.view_direction), select(
         vec3f(0, 0, 1),
         vec3f(0, 1, 0),
         abs(config.view_direction.y) < 1.0 - EPSILON
     )));
     let up = normalize(cross(config.view_direction, right));
-    let screen = 2.0 * vec2f(pixel) / canvas_size - 1.0;
 
     let ray: Ray = Ray(
-        right * screen.x + up * screen.y - 2.0 * config.view_direction,
+        right * screen.x + up * screen.y - config.view_direction,
         config.view_direction,
     );
 
+    let ray_march = march(ray);
+
     var colour = vec3f(0.0);
     var alpha: f32 = 0.0;
-
-    let ray_march = march(ray);
 
     if (march_hit(ray_march)) {
         let normal = ray_march.hit.normal;
         let material = ray_march.hit.material;
 
-        // ambient
-        colour += material.ambient * config.ambient_light;
-
         var in_light: bool;
-
         if (config.shadows > 0) {
             in_light = !march_hit(march(Ray(
-                ray_march.position - 1e-4 * config.sun_direction,
-                -config.sun_direction,
+                ray_march.position - 1e-4 * config.sun.direction,
+                -config.sun.direction,
             )));
         } else {
             in_light = true;
         }
 
-        if (in_light) {
-            // diffuse
-            colour += material.diffuse
-                * config.diffuse_light
-                * max(-dot(config.sun_direction, normal), 0.0);
+        var ambient: f32 = 1.0;
+        if (!in_light) {
+            let ambient_march = march(Ray(
+                ray_march.position,
+                normal,
+            ));
 
-            // specular
-            colour += material.specular
-                * config.specular_light
-                * pow(max(-dot(reflect(config.sun_direction, normal), ray.direction), 0.0), 16.0);
+            if (march_hit(ambient_march)) {
+                ambient = 0.5;
+            }
+        }
+
+        colour += ambient
+            * config.sun.ambient
+            * material.ambient;
+
+        if (in_light) {
+            let diffuse = -dot(config.sun.direction, normal);
+            if (diffuse > 0.0) {
+                colour += diffuse
+                    * config.sun.diffuse
+                    * material.diffuse;
+            }
+
+            let specular = -dot(reflect(config.sun.direction, normal), ray.direction);
+            if (specular > 0.0) {
+                colour += pow(specular, 16.0)
+                    * config.sun.specular
+                    * material.specular;
+            }
         }
 
         alpha = 1.0;
@@ -99,4 +116,12 @@ fn march(ray: Ray) -> March {
 
 fn march_hit(march: March) -> bool {
     return march.iterations <= MAX_ITERATIONS;
+}
+
+fn negative_hit(hit: Hit) -> Hit {
+    return Hit(
+        -hit.distance,
+        -hit.normal,
+        hit.material,
+    );
 }

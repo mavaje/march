@@ -10,6 +10,3 @@ var texture: texture_storage_2d<canvas_format, write>;
 
 @group(global) @binding(config)
 var<uniform> config: Config;
-
-@group(global) @binding(frame)
-var<uniform> frame: Frame;
