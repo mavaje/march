@@ -36,12 +36,21 @@ export class Colour extends Vector {
     }
 
     static from_string(colour: string): Colour {
-        colour = colour.replaceAll(/[^0-9A-F]/gi, '');
-        return new Colour(
-            parseInt(colour.slice(0, 2), 16) / 255,
-            parseInt(colour.slice(2, 4), 16) / 255,
-            parseInt(colour.slice(4, 6), 16) / 255,
-        );
+        const test_element = document.body.appendChild(document.createElement('div'));
+        test_element.style.color = colour;
+        const rgb_string = getComputedStyle(test_element).color;
+        test_element.remove();
+        const match = /rgba?\((?<r>\d+),\s*(?<g>\d+),\s*(?<b>\d+)(,\s*(?<a>[\d.]+))?\)/.exec(rgb_string);
+        if (match) {
+            const {r, g, b} = match.groups;
+            return new Colour(
+                Number.parseInt(r) / 255,
+                Number.parseInt(g) / 255,
+                Number.parseInt(b) / 255,
+            );
+        }
+
+        return new Colour();
     }
 
     hex(): string {

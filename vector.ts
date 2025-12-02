@@ -55,6 +55,10 @@ export class Vector extends DOMPoint {
         );
     }
 
+    negative(): Vector {
+        return this.scaled(-1);
+    }
+
     normalised(): Vector {
         return this.scaled(1 / this.length());
     }

@@ -1,24 +1,24 @@
-import {f32, struct, vec3f} from "../byte-packing/byte-types";
-import {Packer} from "../byte-packing/packer";
-import {Solid} from "./solid";
+import {f32, struct, vec3f} from "../../byte-packing/byte-types";
+import {Packer} from "../../byte-packing/packer";
+import {Solid} from "../solid";
 
 export abstract class Composite extends Solid {
 
     static name = 'composite';
-    static observedAttributes = ['smoothing'];
+    static observedAttributes = [
+        ...Solid.observedAttributes,
+        'smoothing',
+    ];
+
+    public packer = new Packer(struct('Composite', {
+        smoothing: f32,
+        unused: vec3f,
+    }));
 
     public smoothing: number;
 
-    constructor() {
-        super();
-
-        this.packer = new Packer(struct('Composite', {
-            smoothing: f32,
-            unused: vec3f,
-        }));
-    }
-
     update() {
+        super.update();
         this.smoothing = this.attribute_numeric('smoothing', 0);
     }
 
@@ -27,7 +27,7 @@ export abstract class Composite extends Solid {
             .filter(child => child instanceof Solid) as Solid[];
     }
 
-    hit_code(): string {
+    hit_code(origin = 'origin'): string {
         const child_solids = this.child_solids();
 
         if (child_solids.length < 1) {
@@ -37,9 +37,9 @@ export abstract class Composite extends Solid {
         let code: string = null;
         child_solids.forEach(solid => {
             if (code) {
-                code = `${this.function_name()}(${code}, ${solid.hit_code()}, ${this.name()}_list[${this.index}].smoothing)`;
+                code = `${this.function_name()}(${code}, ${solid.hit_code(origin)}, ${this.name()}_list[${this.index}].smoothing)`;
             } else {
-                code = solid.hit_code();
+                code = solid.hit_code(origin);
             }
         });
         return code;

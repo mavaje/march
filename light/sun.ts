@@ -1,5 +1,5 @@
 import {struct, vec3f} from "../byte-packing/byte-types";
-import {VectorLike} from "../vector";
+import {Vector} from "../vector";
 import {Colour, ColourLike} from "../colour";
 import {MarchComponent} from "../march-component";
 
@@ -20,13 +20,14 @@ export class Sun extends MarchComponent {
         specular: vec3f,
     });
 
-    public direction: VectorLike = [0, -1, 0];
+    public direction: Vector = Vector.from([1, -1, -1]).normalised();
     public ambient: ColourLike = Colour.WHITE;
     public diffuse: ColourLike = Colour.WHITE;
     public specular: ColourLike = Colour.WHITE;
 
     update() {
-        this.direction = this.attribute_vector('direction', [0, -1, 0], true);
+        super.update();
+        this.direction = this.attribute_vector('direction', [1, -1, -1], true);
         this.ambient = this.attribute_vector('ambient', [1, 1, 1]);
         this.diffuse = this.attribute_vector('diffuse', [1, 1, 1]);
         this.specular = this.attribute_vector('specular', [1, 1, 1]);

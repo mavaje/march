@@ -25,16 +25,12 @@ fn render(
     let pixel = id.xy;
     let screen = 2.0 * vec2f(pixel) / canvas_size - 1.0;
 
-    let right = normalize(cross((config.view_direction), select(
-        vec3f(0, 0, 1),
-        vec3f(0, 1, 0),
-        abs(config.view_direction.y) < 1.0 - EPSILON
-    )));
-    let up = normalize(cross(config.view_direction, right));
+    let right = normalize(cross(config.camera.direction, config.camera.up));
+    let up = normalize(cross(config.camera.direction, right));
 
     let ray: Ray = Ray(
-        right * screen.x + up * screen.y - config.view_direction,
-        config.view_direction,
+        config.camera.origin + right * screen.x + up * screen.y,
+        config.camera.direction,
     );
 
     let ray_march = march(ray);
@@ -47,7 +43,7 @@ fn render(
         let material = ray_march.hit.material;
 
         var in_light: bool;
-        if (config.shadows > 0) {
+        if ((config.settings & 1) > 0) {
             in_light = !march_hit(march(Ray(
                 ray_march.position - 1e-4 * config.sun.direction,
                 -config.sun.direction,

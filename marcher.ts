@@ -1,20 +1,22 @@
 import {array, struct_declaration} from "./byte-packing/byte-types";
 import {Controls} from "./controls";
 import {Config} from "./config";
-import {Sphere} from "./solid/sphere";
+import {Sphere} from "./solid/primitive/sphere";
 import {Solid} from "./solid/solid";
-import {Composite} from "./solid/composite";
-import {Plane} from "./solid/plane";
-import {Cube} from "./solid/cube";
-import {Cylinder} from "./solid/cylinder";
-import {Cone} from "./solid/cone";
-import { Torus } from "./solid/torus";
-import {Material} from "./material";
+import {Composite} from "./solid/composite/composite";
+import {Plane} from "./solid/primitive/plane";
+import {Cube} from "./solid/primitive/cube";
+import {Cylinder} from "./solid/primitive/cylinder";
+import {Cone} from "./solid/primitive/cone";
+import { Torus } from "./solid/primitive/torus";
+import {Material} from "./material/material";
 import {Sun} from "./light/sun";
-import {Union} from "./solid/union";
-import {Intersection} from "./solid/intersection";
-import {Difference} from "./solid/difference";
+import {Union} from "./solid/composite/union";
+import {Intersection} from "./solid/composite/intersection";
+import {Difference} from "./solid/composite/difference";
 import {MarchElement} from "./march-element";
+import {Repeat} from "./solid/repeat";
+import {Camera} from "./camera/camera";
 
 type Binding = {
     index: number;
@@ -25,6 +27,7 @@ const SOLID_TYPES = [
     Union,
     Intersection,
     Difference,
+    Repeat,
     Plane,
     Cube,
     Sphere,
@@ -85,18 +88,18 @@ export class Marcher extends MarchElement {
         this.canvas =  shadow.appendChild(document.createElement('canvas'));
         this.canvas.style.display = 'block';
 
-        let rotating: DOMPoint = null;
-        this.canvas.addEventListener('pointerdown', ({x, y}) => rotating = new DOMPoint(x, y));
-        document.addEventListener('pointerup', () => rotating = null);
-
-        document.addEventListener('pointermove', ({x, y}) => {
-            if (rotating) {
-                this.config.view_altitude += (y - rotating.y) / 100;
-                this.config.view_azimuth -= (x - rotating.x) / 100;
-                rotating = new DOMPoint(x, y);
-                this.render();
-            }
-        });
+        // let rotating: DOMPoint = null;
+        // this.canvas.addEventListener('pointerdown', ({x, y}) => rotating = new DOMPoint(x, y));
+        // document.addEventListener('pointerup', () => rotating = null);
+        //
+        // document.addEventListener('pointermove', ({x, y}) => {
+        //     if (rotating) {
+        //         // this.config.view_altitude += (y - rotating.y) / 100;
+        //         // this.config.view_azimuth -= (x - rotating.x) / 100;
+        //         rotating = new DOMPoint(x, y);
+        //         this.render();
+        //     }
+        // });
     }
 
     connectedCallback() {
@@ -231,6 +234,10 @@ export class Marcher extends MarchElement {
                 .forEach(solid => this.load_model(solid, false));
         }
 
+        if (solid instanceof Repeat) {
+            this.load_model(solid.child(), false);
+        }
+
         if (is_root) {
             this.root_solid = solid;
 
@@ -250,11 +257,20 @@ export class Marcher extends MarchElement {
             require('./wgsl/render.wgsl'),
         ].join('\n');
 
-        code += struct_declaration(Config.struct);
-        code += struct_declaration(Sun.struct);
-        code += struct_declaration(Material.struct);
-
         const declared_structs: string[] = [];
+
+        [
+            Camera,
+            Sun,
+            Config,
+            Material,
+        ].forEach(({struct}) => {
+            if (!declared_structs.includes(struct.struct_name)) {
+                code += struct_declaration(struct);
+                declared_structs.push(struct.struct_name);
+            }
+        });
+
         SOLID_TYPES.forEach(solid => {
             const instance = new solid();
             const name = instance.name();
@@ -374,6 +390,10 @@ export class Marcher extends MarchElement {
 
     initialise() {
         for (let child of this.children) {
+            if (child instanceof Camera) {
+                this.config.camera = child;
+            }
+
             if (child instanceof Sun) {
                 this.config.sun = child;
             }
@@ -383,17 +403,14 @@ export class Marcher extends MarchElement {
             }
         }
 
+        this.config.camera ??= new Camera();
+        this.config.sun ??= new Sun();
+
         this.setup().then(() => this.render());
     }
 
     private render_frame_id = null;
     render() {
-        this.config.sun.direction = [
-            Math.sin(this.config.view_azimuth) * Math.cos(this.config.view_altitude),
-            -Math.sin(this.config.view_altitude),
-            Math.cos(this.config.view_azimuth) * Math.cos(this.config.view_altitude),
-        ];
-
         window.cancelAnimationFrame(this.render_frame_id);
         this.render_frame_id = window.requestAnimationFrame(() => this.render_frame());
     }

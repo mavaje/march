@@ -1,14 +1,41 @@
 import {Vector, VectorLike} from "./vector";
+import {Colour, ColourLike} from "./colour";
 
 export abstract class MarchElement extends HTMLElement {
 
-    attribute_numeric(name: string, fallback: number = 0) {
+    attribute_numeric(name: string, fallback: number = 0): number {
         let value = Number.parseFloat(this.getAttribute(name));
         return isNaN(value) ? fallback : value;
     }
 
-    attribute_vector(name: string, fallback: VectorLike = [0, 0, 0], normalised: boolean = false) {
+    attribute_vector(name: string, fallback: VectorLike = [0, 0, 0], normalised: boolean = false): Vector {
         const vector = Vector.from_string(this.getAttribute(name), fallback);
         return normalised ? vector.normalised() : vector;
+    }
+
+    attribute_colour(name: string, fallback: ColourLike = [0, 0, 0]): Colour {
+        return this.hasAttribute(name)
+            ? Colour.from_string(this.getAttribute(name))
+            : Colour.from(fallback);
+    }
+
+    attribute_reference<T extends typeof HTMLElement>(name: string, type: T): InstanceType<T> {
+        const attribute = this.getAttribute(name);
+        let element: HTMLElement;
+
+        element = document.getElementById(attribute);
+        if (element instanceof type) {
+            return element as InstanceType<T>;
+        }
+
+        const match = /url\(#(?<id>.+)\)/.exec(attribute);
+        if (match) {
+            element = document.getElementById(match.groups.id);
+            if (element instanceof type) {
+                return element as InstanceType<T>;
+            }
+        }
+
+        return null;
     }
 }

@@ -1,5 +1,5 @@
 import {Composite} from "./composite";
-import {Solid} from "./solid";
+import {Solid} from "../solid";
 
 export class Difference extends Composite {
 
