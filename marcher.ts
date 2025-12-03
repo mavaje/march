@@ -17,6 +17,7 @@ import {Difference} from "./solid/composite/difference";
 import {MarchElement} from "./march-element";
 import {Repeat} from "./solid/repeat";
 import {Camera} from "./camera/camera";
+import {Vector} from "./vector";
 
 type Binding = {
     index: number;
@@ -88,18 +89,30 @@ export class Marcher extends MarchElement {
         this.canvas =  shadow.appendChild(document.createElement('canvas'));
         this.canvas.style.display = 'block';
 
-        // let rotating: DOMPoint = null;
-        // this.canvas.addEventListener('pointerdown', ({x, y}) => rotating = new DOMPoint(x, y));
-        // document.addEventListener('pointerup', () => rotating = null);
-        //
-        // document.addEventListener('pointermove', ({x, y}) => {
-        //     if (rotating) {
-        //         // this.config.view_altitude += (y - rotating.y) / 100;
-        //         // this.config.view_azimuth -= (x - rotating.x) / 100;
-        //         rotating = new DOMPoint(x, y);
-        //         this.render();
-        //     }
-        // });
+        let rotating: DOMPoint = null;
+        this.canvas.addEventListener('pointerdown', ({x, y}) => rotating = new DOMPoint(x, y));
+        document.addEventListener('pointerup', () => rotating = null);
+
+        document.addEventListener('pointermove', ({x, y}) => {
+            if (rotating) {
+                let [azimuth, altitude] = this.config.camera.direction.angular();
+
+                azimuth -= (x - rotating.x) / 100;
+                altitude -= (y - rotating.y) / 100;
+                altitude = Math.max(Math.min(altitude, Math.PI / 2), -Math.PI / 2);
+
+                this.config.camera.direction = Vector.from_angular(azimuth, altitude);
+                this.config.camera.origin = this.config.camera.direction.negative().normalised().scaled(this.config.camera.origin.length());
+
+                this.config.sun.direction = Vector.from_angular(
+                    azimuth - Math.PI / 4,
+                    altitude,
+                );
+
+                rotating = new DOMPoint(x, y);
+                this.render();
+            }
+        });
     }
 
     connectedCallback() {
@@ -271,18 +284,20 @@ export class Marcher extends MarchElement {
             }
         });
 
-        SOLID_TYPES.forEach(solid => {
-            const instance = new solid();
-            const name = instance.name();
-            const struct = instance.struct();
+        SOLID_TYPES.forEach(solid_type => {
+            const solid = new solid_type();
+            const name = solid.name();
+            const struct = solid.struct();
 
             if (!declared_structs.includes(struct.struct_name)) {
                 code += struct_declaration(struct);
                 declared_structs.push(struct.struct_name);
             }
 
-            code += `@group(solids) @binding(${name})\n`;
-            code += `var<uniform> ${name}_list: array<${struct.struct_name}, max_typed_solid_count>;\n`;
+            if (name in this.solids) {
+                code += `@group(solids) @binding(${name})\n`;
+                code += `var<uniform> ${name}_list: array<${struct.struct_name}, ${this.solids[name].length}>;\n`;
+            }
 
             code += require(`./wgsl/solid/${name}.wgsl`);
         });
@@ -403,7 +418,11 @@ export class Marcher extends MarchElement {
             }
         }
 
-        this.config.camera ??= new Camera();
+        if (!this.config.camera) {
+            this.config.camera = new Camera();
+            this.config.camera.origin = this.config.camera.origin.scaled(this.root_solid.scale() / 2);
+        }
+
         this.config.sun ??= new Sun();
 
         this.setup().then(() => this.render());

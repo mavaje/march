@@ -32,4 +32,8 @@ export class Torus extends Primitive {
         this.radius_major = this.attribute_numeric('radius_major', 0.75);
         this.radius_minor = this.attribute_numeric('radius_minor', 0.25);
     }
+
+    scale(): number {
+        return this.centre.length() + this.radius_major + this.radius_minor;
+    }
 }

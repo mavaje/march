@@ -28,4 +28,8 @@ export class Sphere extends Primitive {
         this.centre = this.attribute_vector('centre', [0, 0, 0]);
         this.radius = this.attribute_numeric('radius', 1);
     }
+
+    scale(): number {
+        return this.centre.length() + this.radius;
+    }
 }

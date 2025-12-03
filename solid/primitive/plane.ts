@@ -28,4 +28,8 @@ export class Plane extends Primitive {
         this.normal = this.attribute_vector('normal', [0, 1, 0], true);
         this.offset = this.attribute_numeric('offset', 0);
     }
+
+    scale(): number {
+        return this.offset;
+    }
 }

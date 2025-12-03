@@ -29,7 +29,9 @@ fn render(
     let up = normalize(cross(config.camera.direction, right));
 
     let ray: Ray = Ray(
-        config.camera.origin + right * screen.x + up * screen.y,
+        config.camera.origin
+            + right * screen.x * length(config.camera.origin)
+            + up * screen.y * length(config.camera.origin),
         config.camera.direction,
     );
 

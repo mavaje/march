@@ -4,9 +4,6 @@ export type ColourLike = [number, number, number] | DOMPoint;
 
 export class Colour extends Vector {
 
-    static BLACK = Colour.grey(0);
-    static WHITE = Colour.grey(1);
-
     constructor(
         r: number = 0,
         g: number = 0,
@@ -15,7 +12,7 @@ export class Colour extends Vector {
         super(r, g, b);
     }
 
-    static grey(value: number = 0.5): Colour {
+    static greyscale(value: number = 0.5): Colour {
         return new Colour(value, value, value);
     }
 
@@ -36,10 +33,13 @@ export class Colour extends Vector {
     }
 
     static from_string(colour: string): Colour {
+        colour ??= '';
+
         const test_element = document.body.appendChild(document.createElement('div'));
         test_element.style.color = colour;
         const rgb_string = getComputedStyle(test_element).color;
         test_element.remove();
+
         const match = /rgba?\((?<r>\d+),\s*(?<g>\d+),\s*(?<b>\d+)(,\s*(?<a>[\d.]+))?\)/.exec(rgb_string);
         if (match) {
             const {r, g, b} = match.groups;

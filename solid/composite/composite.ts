@@ -27,6 +27,12 @@ export abstract class Composite extends Solid {
             .filter(child => child instanceof Solid) as Solid[];
     }
 
+    scale(): number {
+        return Math.max(
+            ...this.child_solids().map(solid => solid.scale()),
+        );
+    }
+
     hit_code(origin = 'origin'): string {
         const child_solids = this.child_solids();
 

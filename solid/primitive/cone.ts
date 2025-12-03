@@ -37,4 +37,8 @@ export class Cone extends Primitive {
     get cos() {
         return Math.cos(this.angle);
     }
+
+    scale(): number {
+        return this.centre.length();
+    }
 }

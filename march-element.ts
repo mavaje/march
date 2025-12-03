@@ -8,12 +8,12 @@ export abstract class MarchElement extends HTMLElement {
         return isNaN(value) ? fallback : value;
     }
 
-    attribute_vector(name: string, fallback: VectorLike = [0, 0, 0], normalised: boolean = false): Vector {
+    attribute_vector(name: string, fallback?: VectorLike, normalised: boolean = false): Vector {
         const vector = Vector.from_string(this.getAttribute(name), fallback);
         return normalised ? vector.normalised() : vector;
     }
 
-    attribute_colour(name: string, fallback: ColourLike = [0, 0, 0]): Colour {
+    attribute_colour(name: string, fallback?: ColourLike): Colour {
         return this.hasAttribute(name)
             ? Colour.from_string(this.getAttribute(name))
             : Colour.from(fallback);

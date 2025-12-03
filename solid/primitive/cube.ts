@@ -32,4 +32,8 @@ export class Cube extends Primitive {
         this.size = this.attribute_vector('size', [1, 1, 1]);
         this.smoothing = this.attribute_numeric('smoothing', 0);
     }
+
+    scale(): number {
+        return this.centre.length() + this.size.length() / 2;
+    }
 }

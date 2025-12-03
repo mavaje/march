@@ -20,16 +20,16 @@ export class Sun extends MarchComponent {
         specular: vec3f,
     });
 
-    public direction: Vector = Vector.from([1, -1, -1]).normalised();
-    public ambient: ColourLike = Colour.WHITE;
-    public diffuse: ColourLike = Colour.WHITE;
-    public specular: ColourLike = Colour.WHITE;
+    public direction: Vector = Vector.from([1, -2, -1]).normalised();
+    public ambient: ColourLike = Colour.greyscale(1);
+    public diffuse: ColourLike = Colour.greyscale(1);
+    public specular: ColourLike = Colour.greyscale(1);
 
     update() {
         super.update();
         this.direction = this.attribute_vector('direction', [1, -1, -1], true);
-        this.ambient = this.attribute_vector('ambient', [1, 1, 1]);
-        this.diffuse = this.attribute_vector('diffuse', [1, 1, 1]);
-        this.specular = this.attribute_vector('specular', [1, 1, 1]);
+        this.ambient = this.attribute_vector('ambient', Colour.greyscale(1));
+        this.diffuse = this.attribute_vector('diffuse', Colour.greyscale(1));
+        this.specular = this.attribute_vector('specular', Colour.greyscale(1));
     }
 }

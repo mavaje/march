@@ -35,6 +35,13 @@ export class Repeat extends Solid {
         this.step = this.attribute_vector('step', [1, 1, 1]);
     }
 
+    scale(): number {
+        return Math.max(
+            this.start.length(),
+            this.end.length(),
+        ) - this.step.length() / 2 + this.child().scale();
+    }
+
     hit_code(origin = 'origin'): string {
         const child = this.child();
         return child

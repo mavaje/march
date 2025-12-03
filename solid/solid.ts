@@ -24,6 +24,11 @@ export abstract class Solid extends MarchComponent {
         const material = this.attribute_reference('material', Material);
         if (material) return material;
 
+        const colour = this.attribute_colour('material');
+        if (colour) {
+            return Material.of_colour(colour);
+        }
+
         if (this.parentElement instanceof Solid) {
             return this.parentElement.find_material();
         } else {
@@ -36,6 +41,8 @@ export abstract class Solid extends MarchComponent {
 
         return this.packer.buffer;
     }
+
+    abstract scale(): number;
 
     abstract hit_code(origin?: string): string;
 }

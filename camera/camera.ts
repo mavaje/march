@@ -19,12 +19,12 @@ export class Camera extends MarchComponent {
 
     public origin: Vector = Vector.from([1, 1, 1]);
     public direction: Vector = Vector.from([-1, -1, -1]).normalised();
-    public up: Vector = Vector.from([0, 1, 0]).normalised();
+    public up: Vector = Vector.vectors.up;
 
     update() {
         super.update();
         this.origin = this.attribute_vector('origin', [1, 1, 1]);
         this.direction = this.attribute_vector('direction', this.origin.negative(), true);
-        this.up = this.attribute_vector('up', [0, 1, 0], true);
+        this.up = this.attribute_vector('up', Vector.vectors.up, true);
     }
 }

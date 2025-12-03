@@ -1,6 +1,6 @@
 import {Solid} from "../solid";
 
-export class Primitive extends Solid {
+export abstract class Primitive extends Solid {
     buffer() {
         this.packer.set('material', this.find_material());
 
