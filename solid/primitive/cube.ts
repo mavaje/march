@@ -9,7 +9,7 @@ export class Cube extends Primitive {
 
     static name = 'cube';
     static observedAttributes = [
-        ...Solid.observedAttributes,
+        ...Solid.common_attributes,
         'centre',
         'size',
         'smoothing',

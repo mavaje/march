@@ -9,7 +9,7 @@ export class Sphere extends Primitive {
 
     static name = 'sphere';
     static observedAttributes = [
-        ...Solid.observedAttributes,
+        ...Solid.common_attributes,
         'centre',
         'radius',
     ];

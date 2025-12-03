@@ -6,7 +6,7 @@ export abstract class Composite extends Solid {
 
     static name = 'composite';
     static observedAttributes = [
-        ...Solid.observedAttributes,
+        ...Solid.common_attributes,
         'smoothing',
     ];
 

@@ -7,33 +7,34 @@
     <link rel="stylesheet" href="../dist/main.css">
 </head>
 <body>
-    <x-marcher>
-        <x-intersection smoothing=".02" material="red">
-            <x-cube centre="0 .05 0" size="1 .3 1" smoothing=".02"></x-cube>
-            <x-difference smoothing=".02">
-                <x-union smoothing=".02">
-                    <x-plane normal="up" offset=".1"></x-plane>
-                    <x-repeat start="-.5 0 -.5" end=".5 0 .5" step=".5 0 .5">
-                        <x-cylinder centre=".25 0 .25" direction="up" radius=".15"></x-cylinder>
+<x-marcher>
+    <x-difference smoothing=".5" material="red">
+        <x-union smoothing=".5">
+            <x-cube size="40 8 40" smoothing=".5"></x-cube>
+            <x-intersection smoothing="1">
+                <x-plane normal="up" offset="8"></x-plane>
+                <x-plane normal="down"></x-plane>
+                <x-repeat start="-20 0 -20" end="20 0 20" step="20 0 20">
+                    <x-cylinder centre="10 0 10" direction="up" radius="6"></x-cylinder>
+                </x-repeat>
+            </x-intersection>
+        </x-union>
+        <x-difference smoothing="1">
+            <x-union smoothing="1">
+                <x-cube size="32 8 32" centre="0 -4 0" smoothing="0.5"></x-cube>
+                <x-intersection smoothing="1">
+                    <x-plane normal="up" offset="4"></x-plane>
+                    <x-repeat start="-20 0 -20" end="20 0 20" step="20 0 20">
+                        <x-cylinder centre="10 0 10" direction="up" radius="3"></x-cylinder>
                     </x-repeat>
-                </x-union>
-                <x-difference smoothing=".02">
-                    <x-intersection smoothing=".02">
-                        <x-cube centre="0 -.05 0" size=".8 .3 .8"></x-cube>
-                        <x-union smoothing=".02">
-                            <x-plane normal="up"></x-plane>
-                            <x-repeat start="-.5 0 -.5" end=".5 0 .5" step=".5 0 .5">
-                                <x-cylinder centre=".25 0 .25" direction="up" radius=".05"></x-cylinder>
-                            </x-repeat>
-                        </x-union>
-                    </x-intersection>
-                    <x-difference>
-                        <x-cylinder direction="up" radius=".2"></x-cylinder>
-                        <x-cylinder direction="up" radius=".15"></x-cylinder>
-                    </x-difference>
-                </x-difference>
+                </x-intersection>
+            </x-union>
+            <x-difference>
+                <x-cylinder direction="up" radius="8"></x-cylinder>
+                <x-cylinder direction="up" radius="6"></x-cylinder>
             </x-difference>
-        </x-intersection>
-    </x-marcher>
+        </x-difference>
+    </x-difference>
+</x-marcher>
 </body>
 </html>

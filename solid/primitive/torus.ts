@@ -9,7 +9,7 @@ export class Torus extends Primitive {
 
     static name = 'torus';
     static observedAttributes = [
-        ...Solid.observedAttributes,
+        ...Solid.common_attributes,
         'centre',
         'radius_major',
         'radius_minor',

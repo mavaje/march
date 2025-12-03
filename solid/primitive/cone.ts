@@ -9,7 +9,7 @@ export class Cone extends Primitive {
 
     static name = 'cone';
     static observedAttributes = [
-        ...Solid.observedAttributes,
+        ...Solid.common_attributes,
         'angle',
         'centre',
     ];

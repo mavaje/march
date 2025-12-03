@@ -9,7 +9,7 @@ export class Plane extends Primitive {
 
     static name = 'plane';
     static observedAttributes = [
-        ...Solid.observedAttributes,
+        ...Solid.common_attributes,
         'normal',
         'offset',
     ];

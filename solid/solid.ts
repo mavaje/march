@@ -8,7 +8,7 @@ export abstract class Solid extends MarchComponent {
     protected packer: Packer<StructType>;
 
     static name: string;
-    static observedAttributes = ['material'];
+    static common_attributes = ['material'];
 
     public index: number;
 
@@ -20,7 +20,7 @@ export abstract class Solid extends MarchComponent {
         return this.packer.type;
     }
 
-    find_material(): Material {
+    get material(): Material {
         const material = this.attribute_reference('material', Material);
         if (material) return material;
 
@@ -30,7 +30,7 @@ export abstract class Solid extends MarchComponent {
         }
 
         if (this.parentElement instanceof Solid) {
-            return this.parentElement.find_material();
+            return this.parentElement.material;
         } else {
             return new Material();
         }

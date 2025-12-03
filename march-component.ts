@@ -23,12 +23,7 @@ export abstract class MarchComponent extends MarchElement {
     update() {}
 
     root_marcher(): Marcher {
-        if (this.parentElement instanceof Marcher) {
-            return this.parentElement;
-        } else if (this.parentElement instanceof MarchComponent) {
-            this.parentElement.root_marcher();
-        } else {
-            return null;
-        }
+        const marcher = this.closest('x-marcher');
+        return (marcher instanceof Marcher) ? marcher : null;
     }
 }

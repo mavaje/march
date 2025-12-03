@@ -7,7 +7,7 @@ export class Repeat extends Solid {
 
     static name = 'repeat';
     static observedAttributes = [
-        ...Solid.observedAttributes,
+        ...Solid.common_attributes,
         'start',
         'end',
         'step',

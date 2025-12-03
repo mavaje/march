@@ -9,7 +9,7 @@ export class Cylinder extends Primitive {
 
     static name = 'cylinder';
     static observedAttributes = [
-        ...Solid.observedAttributes,
+        ...Solid.common_attributes,
         'centre',
         'direction',
         'radius',
