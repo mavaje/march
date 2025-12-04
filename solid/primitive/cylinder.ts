@@ -28,8 +28,8 @@ export class Cylinder extends Primitive {
 
     update() {
         super.update();
-        this.centre = this.attribute_vector('centre', [0, 0, 0]);
-        this.direction = this.attribute_vector('direction', [0, 0, 1], true);
+        this.centre = this.attribute_vector('centre', Vector.vectors.origin);
+        this.direction = this.attribute_vector('direction', Vector.vectors.up, true);
         this.radius = this.attribute_numeric('radius', 1);
     }
 

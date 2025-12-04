@@ -28,7 +28,7 @@ export class Cube extends Primitive {
 
     update() {
         super.update();
-        this.centre = this.attribute_vector('centre', [0, 0, 0]);
+        this.centre = this.attribute_vector('centre', Vector.vectors.origin);
         this.size = this.attribute_vector('size', [1, 1, 1]);
         this.smoothing = this.attribute_numeric('smoothing', 0);
     }

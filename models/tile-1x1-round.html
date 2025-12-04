@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tile 1 x 1 Round</title>
+    <script type="module" src="../dist/main.js"></script>
+    <link rel="stylesheet" href="../dist/main.css">
+</head>
+<body>
+    <x-marcher>
+        <x-difference smoothing=".5" material="red">
+            <x-intersection smoothing=".5">
+                <x-cylinder radius="10"></x-cylinder>
+                <x-plane normal="up" offset="4"></x-plane>
+                <x-plane normal="down" offset="4"></x-plane>
+                <x-union smoothing=".5">
+                    <x-plane normal="down" offset="3"></x-plane>
+                    <x-cylinder radius="9"></x-cylinder>
+                </x-union>
+            </x-intersection>
+            <x-intersection smoothing=".5">
+                <x-cylinder radius="6"></x-cylinder>
+                <x-plane normal="up"></x-plane>
+            </x-intersection>
+        </x-difference>
+    </x-marcher>
+</body>
+</html>

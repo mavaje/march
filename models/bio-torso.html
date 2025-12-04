@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bio Torso</title>
+    <script type="module" src="../dist/main.js"></script>
+    <link rel="stylesheet" href="../dist/main.css">
+</head>
+<body>
+    <x-marcher>
+        <x-intersection>
+            <x-union>
+                <x-cube centre="0 40 0" size="120 20 60" smoothing="10"></x-cube>
+                <x-cube centre="0 30 0" size="120 40 20" smoothing="10"></x-cube>
+                <x-cylinder direction="left" centre="0 40 0" radius="15"></x-cylinder>
+            </x-union>
+            <x-cube centre="0 30 0" size="100 60 60"></x-cube>
+        </x-intersection>
+    </x-marcher>
+</body>
+</html>

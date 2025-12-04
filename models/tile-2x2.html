@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tile 2 x 2</title>
+    <script type="module" src="../dist/main.js"></script>
+    <link rel="stylesheet" href="../dist/main.css">
+</head>
+<body>
+    <x-marcher>
+        <x-difference smoothing=".5" material="red">
+            <x-union smoothing=".5">
+                <x-cube size="40 7 40" centre="0 .5 0" smoothing=".5"></x-cube>
+                <x-cube size="38 4 38" centre="0 -2 0" smoothing=".5"></x-cube>
+            </x-union>
+            <x-difference smoothing="1">
+                <x-cube size="32 8 32" centre="0 -4 0" smoothing=".5"></x-cube>
+                <x-difference>
+                    <x-cylinder radius="8"></x-cylinder>
+                    <x-cylinder radius="6"></x-cylinder>
+                </x-difference>
+            </x-difference>
+        </x-difference>
+    </x-marcher>
+</body>
+</html>

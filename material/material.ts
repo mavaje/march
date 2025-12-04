@@ -5,7 +5,7 @@ import {MarchComponent} from "../march-component";
 export class Material extends MarchComponent {
 
     static name = 'material';
-    static observedAttributes = ['ambient', 'diffuse', 'specular'];
+    static observedAttributes = ['id', 'ambient', 'diffuse', 'specular'];
 
     static struct = struct('Material', {
         ambient: vec3f,

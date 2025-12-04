@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Plate 1 x 1</title>
+    <script type="module" src="../dist/main.js"></script>
+    <link rel="stylesheet" href="../dist/main.css">
+</head>
+<body>
+    <x-marcher>
+        <x-difference smoothing=".5" material="red">
+            <x-union smoothing=".5">
+                <x-cube size="20 8 20" smoothing=".5"></x-cube>
+                <x-intersection smoothing="1">
+                    <x-plane normal="up" offset="8"></x-plane>
+                    <x-plane normal="down"></x-plane>
+                    <x-cylinder centre="0 0 0" direction="up" radius="6"></x-cylinder>
+                </x-intersection>
+            </x-union>
+            <x-union smoothing="1">
+                <x-cube size="12 8 12" centre="0 -4 0" smoothing=".5"></x-cube>
+                <x-intersection smoothing="1">
+                    <x-plane normal="up" offset="4"></x-plane>
+                    <x-cylinder centre="0 0 0" direction="up" radius="3"></x-cylinder>
+                </x-intersection>
+            </x-union>
+        </x-difference>
+    </x-marcher>
+</body>
+</html>

@@ -15,23 +15,23 @@
                     <x-plane normal="up" offset="16"></x-plane>
                     <x-plane normal="down"></x-plane>
                     <x-repeat start="-20 0 -20" end="20 0 20" step="20 0 20">
-                        <x-cylinder centre="10 0 10" direction="up" radius="6"></x-cylinder>
+                        <x-cylinder centre="10 0 10" radius="6"></x-cylinder>
                     </x-repeat>
                 </x-intersection>
             </x-union>
             <x-difference smoothing="1">
                 <x-union smoothing="1">
-                    <x-cube size="33 24 33" centre="0 -4 0" smoothing="0.5"></x-cube>
+                    <x-cube size="32 24 32" centre="0 -4 0" smoothing=".5"></x-cube>
                     <x-intersection smoothing="1">
                         <x-plane normal="up" offset="12"></x-plane>
                         <x-repeat start="-20 0 -20" end="20 0 20" step="20 0 20">
-                            <x-cylinder centre="10 0 10" direction="up" radius="3"></x-cylinder>
+                            <x-cylinder centre="10 0 10" radius="3"></x-cylinder>
                         </x-repeat>
                     </x-intersection>
                 </x-union>
                 <x-difference>
-                    <x-cylinder direction="up" radius="8"></x-cylinder>
-                    <x-cylinder direction="up" radius="6"></x-cylinder>
+                    <x-cylinder radius="8"></x-cylinder>
+                    <x-cylinder radius="6"></x-cylinder>
                 </x-difference>
             </x-difference>
         </x-difference>

@@ -28,7 +28,7 @@ export class Torus extends Primitive {
 
     update() {
         super.update();
-        this.centre = this.attribute_vector('centre', [0, 0, 0]);
+        this.centre = this.attribute_vector('centre', Vector.vectors.origin);
         this.radius_major = this.attribute_numeric('radius_major', 0.75);
         this.radius_minor = this.attribute_numeric('radius_minor', 0.25);
     }

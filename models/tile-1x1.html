@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tile 1 x 1</title>
+    <script type="module" src="../dist/main.js"></script>
+    <link rel="stylesheet" href="../dist/main.css">
+</head>
+<body>
+    <x-marcher>
+        <x-difference smoothing=".5" material="red">
+            <x-union smoothing=".5">
+                <x-cube size="20 7 20" centre="0 .5 0" smoothing=".5"></x-cube>
+                <x-cube size="18 4 18" centre="0 -2 0" smoothing=".5"></x-cube>
+            </x-union>
+            <x-cube size="12 8 12" centre="0 -4 0" smoothing=".5"></x-cube>
+        </x-difference>
+    </x-marcher>
+</body>
+</html>

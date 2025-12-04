@@ -25,7 +25,7 @@ export class Plane extends Primitive {
 
     update() {
         super.update();
-        this.normal = this.attribute_vector('normal', [0, 1, 0], true);
+        this.normal = this.attribute_vector('normal', Vector.vectors.up, true);
         this.offset = this.attribute_numeric('offset', 0);
     }
 

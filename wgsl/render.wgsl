@@ -98,17 +98,16 @@ fn march(ray: Ray) -> March {
     loop {
         let hit = HIT_INJECTION;
 
-        if (abs(hit.distance) < EPSILON &&
-            dot(ray.direction, hit.normal) < 0.0
+        if ((abs(hit.distance) < EPSILON &&
+            dot(ray.direction, hit.normal) < 0.0)
+            || iteration > MAX_ITERATIONS
         ) {
             return March(hit, origin, iteration);
         } else {
             origin += hit.distance * ray.direction;
-            iteration++;
-            if (iteration > MAX_ITERATIONS) {
-                return March(Hit(), vec3f(), iteration);
-            }
         }
+
+        iteration++;
     }
 }
 

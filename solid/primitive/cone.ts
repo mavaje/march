@@ -27,7 +27,7 @@ export class Cone extends Primitive {
     update() {
         super.update();
         this.angle = this.attribute_numeric('angle', Math.PI / 4,);
-        this.centre = this.attribute_vector('centre', [0, 0, 0]);
+        this.centre = this.attribute_vector('centre', Vector.vectors.origin);
     }
 
     get sin() {
