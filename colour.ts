@@ -1,15 +1,14 @@
-import {Vector} from "./vector";
-
 export type ColourLike = [number, number, number] | DOMPoint;
 
-export class Colour extends Vector {
+export class Colour extends DOMPoint {
 
     constructor(
         r: number = 0,
         g: number = 0,
         b: number = 0,
+        a: number = 1,
     ) {
-        super(r, g, b);
+        super(r, g, b, a);
     }
 
     static greyscale(value: number = 0.5): Colour {
@@ -42,11 +41,12 @@ export class Colour extends Vector {
 
         const match = /rgba?\((?<r>\d+),\s*(?<g>\d+),\s*(?<b>\d+)(,\s*(?<a>[\d.]+))?\)/.exec(rgb_string);
         if (match) {
-            const {r, g, b} = match.groups;
+            const {r, g, b, a = '1'} = match.groups;
             return new Colour(
                 Number.parseInt(r) / 255,
                 Number.parseInt(g) / 255,
                 Number.parseInt(b) / 255,
+                Number.parseFloat(a),
             );
         }
 
@@ -67,16 +67,19 @@ export class Colour extends Vector {
     get r() { return this.x; }
     get g() { return this.y; }
     get b() { return this.z; }
+    get a() { return this.w; }
 
     set r(r: number) { this.x = r; }
     set g(g: number) { this.y = g; }
     set b(b: number) { this.z = b; }
+    set a(a: number) { this.w = a; }
 
     invert(): Colour {
         return new Colour(
             1 - this.r,
             1 - this.g,
             1 - this.b,
+            this.a,
         );
     }
 
@@ -85,6 +88,7 @@ export class Colour extends Vector {
             this.r * amount,
             this.g * amount,
             this.b * amount,
+            this.a,
         );
     }
 

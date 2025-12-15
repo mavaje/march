@@ -15,6 +15,7 @@ fn hit_union(hit_a: Hit, hit_b: Hit, radius: f32) -> Hit {
                 mix(hit_a.material.ambient, hit_b.material.ambient, blend),
                 mix(hit_a.material.diffuse, hit_b.material.diffuse, blend),
                 mix(hit_a.material.specular, hit_b.material.specular, blend),
+                mix(hit_a.material.opacity, hit_b.material.opacity, blend),
             ),
         );
     }

@@ -15,7 +15,7 @@ import {Union} from "./solid/composite/union";
 import {Intersection} from "./solid/composite/intersection";
 import {Difference} from "./solid/composite/difference";
 import {MarchElement} from "./march-element";
-import {Repeat} from "./solid/repeat";
+import {Repeat} from "./solid/composite/repeat";
 import {Camera} from "./camera/camera";
 import {Vector} from "./vector";
 
@@ -420,7 +420,8 @@ export class Marcher extends MarchElement {
 
         if (!this.config.camera) {
             this.config.camera = new Camera();
-            this.config.camera.origin = this.config.camera.origin.scaled(this.root_solid.scale() / 2);
+            this.config.camera.origin = this.config.camera.origin.scaled(this.root_solid.scale());
+            this.config.camera.width = this.config.camera.height = this.root_solid.scale();
         }
 
         this.config.sun ??= new Sun();

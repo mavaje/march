@@ -15,7 +15,7 @@ export class Config {
 
     public camera: Camera;
     public sun: Sun;
-    public shadows: boolean = true;
+    public shadows: boolean = false;
 
     buffer() {
         this.packer.set(this);

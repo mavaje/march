@@ -11,8 +11,8 @@ export class Torus extends Primitive {
     static observedAttributes = [
         ...Solid.common_attributes,
         'centre',
-        'radius_major',
-        'radius_minor',
+        'radius-major',
+        'radius-minor',
     ];
 
     public packer = new Packer(struct('Torus', {

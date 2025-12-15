@@ -8,7 +8,10 @@
 </head>
 <body>
 <x-marcher>
-    <x-cube smoothing=".49"></x-cube>
+    <x-difference smoothing=".1">
+        <x-cube></x-cube>
+        <x-torus radius-major="0.5"></x-torus>
+    </x-difference>
 </x-marcher>
 </body>
 </html>

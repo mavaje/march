@@ -7,20 +7,12 @@ export abstract class Composite extends Solid {
     static name = 'composite';
     static observedAttributes = [
         ...Solid.common_attributes,
-        'smoothing',
     ];
 
     public packer = new Packer(struct('Composite', {
         smoothing: f32,
         unused: vec3f,
     }));
-
-    public smoothing: number;
-
-    update() {
-        super.update();
-        this.smoothing = this.attribute_numeric('smoothing', 0);
-    }
 
     child_solids() {
         return [...this.children]

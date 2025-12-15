@@ -15,7 +15,8 @@ struct March {
     iterations: u32,
 }
 
-const MAX_ITERATIONS: u32 = 2 << 8;
+const MAX_MARCH_ITERATIONS: u32 = 2 << 8;
+const MAX_REFRACT_ITERATIONS: u32 = 2 << 2;
 
 @compute @workgroup_size(render_workgroup_size)
 fn render(
@@ -28,66 +29,99 @@ fn render(
     let right = normalize(cross(config.camera.direction, config.camera.up));
     let up = normalize(cross(config.camera.direction, right));
 
-    let ray: Ray = Ray(
+    var ray: Ray = Ray(
         config.camera.origin
-            + right * screen.x * length(config.camera.origin)
-            + up * screen.y * length(config.camera.origin),
+            + right * screen.x * config.camera.size.x
+            + up * screen.y * config.camera.size.y,
         config.camera.direction,
     );
 
-    let ray_march = march(ray);
-
+    var iteration: u32 = 0;
+    var scale: vec3f = vec3f(1.0);
     var colour = vec3f(0.0);
     var alpha: f32 = 0.0;
 
-    if (march_hit(ray_march)) {
-        let normal = ray_march.hit.normal;
+    loop {
+        let ray_march = march(ray);
+
         let material = ray_march.hit.material;
 
-        var in_light: bool;
-        if ((config.settings & 1) > 0) {
-            in_light = !march_hit(march(Ray(
-                ray_march.position - 1e-4 * config.sun.direction,
-                -config.sun.direction,
-            )));
+        var ambient: f32 = 0.0;
+        var diffuse: f32 = 0.0;
+        var specular: f32 = 0.0;
+
+        if (march_hit(ray_march)) {
+            let normal = ray_march.hit.normal;
+
+            var in_light: bool;
+            if ((config.settings & 1) > 0) {
+                in_light = !march_hit(march(Ray(
+                    ray_march.position - 1e-4 * config.sun.direction,
+                    -config.sun.direction,
+                )));
+            } else {
+                in_light = true;
+            }
+
+            ambient = 1.0;
+
+            if (in_light) {
+                diffuse = max(-dot(config.sun.direction, normal), 0.0);
+
+                if (dot(ray.direction, normal) < 0.0) {
+                    specular = max(-dot(reflect(config.sun.direction, normal), ray.direction), 0.0);
+                }
+            } else {
+                let ambient_march = march(Ray(
+                    ray_march.position,
+                    normal,
+                ));
+
+                if (march_hit(ambient_march)) {
+                    ambient = 0.5;
+                }
+            }
+
+            alpha = 1.0;
+
         } else {
-            in_light = true;
+            break;
         }
 
-        var ambient: f32 = 1.0;
-        if (!in_light) {
-            let ambient_march = march(Ray(
-                ray_march.position,
-                normal,
-            ));
+        if (iteration > MAX_REFRACT_ITERATIONS || all(scale < vec3f(EPSILON))) {
+            break;
+        } else {
+            let inside_ray = Ray(
+                ray_march.position + 1e-4 * config.camera.direction,
+                config.camera.direction,
+            );
 
-            if (march_hit(ambient_march)) {
-                ambient = 0.5;
+            let inside_march = march(inside_ray);
+
+            if (march_hit(ray_march)) {
+                let distance = distance(ray_march.position, inside_march.position);
             }
+
+
+//                let direction = refract();
+            ray = Ray(
+                inside_march.position + 1e-4 * config.camera.direction,
+                config.camera.direction,
+            );
         }
 
-        colour += ambient
-            * config.sun.ambient
-            * material.ambient;
+        colour += scale * (
+            ambient * config.sun.ambient * material.ambient
+            + diffuse * config.sun.diffuse * material.diffuse
+            + pow(specular, 16.0) * config.sun.specular * material.specular
+        );
 
-        if (in_light) {
-            let diffuse = -dot(config.sun.direction, normal);
-            if (diffuse > 0.0) {
-                colour += diffuse
-                    * config.sun.diffuse
-                    * material.diffuse;
-            }
+        scale *= 1.0 - material.opacity;
 
-            let specular = -dot(reflect(config.sun.direction, normal), ray.direction);
-            if (specular > 0.0) {
-                colour += pow(specular, 16.0)
-                    * config.sun.specular
-                    * material.specular;
-            }
-        }
-
-        alpha = 1.0;
+        iteration++;
     }
+
+
 
     textureStore(texture, pixel, vec4f(colour, alpha));
 }
@@ -98,13 +132,13 @@ fn march(ray: Ray) -> March {
     loop {
         let hit = HIT_INJECTION;
 
-        if ((abs(hit.distance) < EPSILON &&
-            dot(ray.direction, hit.normal) < 0.0)
-            || iteration > MAX_ITERATIONS
+        if (iteration > MAX_MARCH_ITERATIONS
+            || (abs(hit.distance) < EPSILON)// &&
+                //dot(ray.direction, hit.normal) < 0.0)
         ) {
             return March(hit, origin, iteration);
         } else {
-            origin += hit.distance * ray.direction;
+            origin += abs(hit.distance) * ray.direction;
         }
 
         iteration++;
@@ -112,7 +146,7 @@ fn march(ray: Ray) -> March {
 }
 
 fn march_hit(march: March) -> bool {
-    return march.iterations <= MAX_ITERATIONS;
+    return march.iterations <= MAX_MARCH_ITERATIONS;
 }
 
 fn negative_hit(hit: Hit) -> Hit {

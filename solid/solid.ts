@@ -8,7 +8,7 @@ export abstract class Solid extends MarchComponent {
     protected packer: Packer<StructType>;
 
     static name: string;
-    static common_attributes = ['material'];
+    static common_attributes = ['material', 'smoothing'];
 
     public index: number;
 
@@ -33,6 +33,17 @@ export abstract class Solid extends MarchComponent {
             return this.parentElement.material;
         } else {
             return new Material();
+        }
+    }
+
+    get smoothing(): number {
+        const smoothing = this.attribute_numeric('smoothing', null);
+        if (smoothing !== null) return smoothing;
+
+        if (this.parentElement instanceof Solid) {
+            return this.parentElement.smoothing;
+        } else {
+            return 0;
         }
     }
 

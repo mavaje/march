@@ -12,7 +12,6 @@ export class Cube extends Primitive {
         ...Solid.common_attributes,
         'centre',
         'size',
-        'smoothing',
     ];
 
     public packer = new Packer(struct('Cube', {
@@ -24,13 +23,11 @@ export class Cube extends Primitive {
 
     public centre: Vector;
     public size: Vector;
-    public smoothing: number;
 
     update() {
         super.update();
         this.centre = this.attribute_vector('centre', Vector.vectors.origin);
         this.size = this.attribute_vector('size', [1, 1, 1]);
-        this.smoothing = this.attribute_numeric('smoothing', 0);
     }
 
     scale(): number {

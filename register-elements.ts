@@ -9,7 +9,7 @@ import {Union} from "./solid/composite/union";
 import {Intersection} from "./solid/composite/intersection";
 import {Difference} from "./solid/composite/difference";
 import {Sun} from "./light/sun";
-import { Repeat } from "./solid/repeat";
+import { Repeat } from "./solid/composite/repeat";
 import {Camera} from "./camera/camera";
 import {Material} from "./material/material";
 
