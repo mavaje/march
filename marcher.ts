@@ -1,5 +1,4 @@
 import {array, struct_declaration} from "./byte-packing/byte-types";
-import {Controls} from "./controls";
 import {Config} from "./config";
 import {Sphere} from "./solid/primitive/sphere";
 import {Solid} from "./solid/solid";
@@ -76,8 +75,6 @@ export class Marcher extends MarchElement {
     private pipeline: GPUComputePipeline = null;
 
     public config = new Config();
-
-    public controls: Controls = new Controls();
 
     public root_solid: Solid = null;
     public solids: Record<string, Solid[]> = {};

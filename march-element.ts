@@ -22,12 +22,9 @@ export abstract class MarchElement extends HTMLElement {
     attribute_reference<T extends typeof HTMLElement>(name: string, type: T): InstanceType<T> {
         const attribute = this.getAttribute(name);
         const match = /url\(#(?<id>.+)\)/.exec(attribute);
-        if (match) {
-            const element = document.getElementById(match.groups.id);
-            if (element instanceof type) {
-                return element as InstanceType<T>;
-            }
-        }
-        return null;
+        const element = document.getElementById(match?.groups.id ?? attribute);
+        return element instanceof type
+            ? element as InstanceType<T>
+            : null;
     }
 }

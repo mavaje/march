@@ -12,6 +12,8 @@ import {Sun} from "./light/sun";
 import { Repeat } from "./solid/composite/repeat";
 import {Camera} from "./camera/camera";
 import {Material} from "./material/material";
+import {ControlPanel} from "./controls/control-panel";
+import {Slider} from "./controls/slider";
 
 export function register_custom_elements() {
     [
@@ -33,6 +35,9 @@ export function register_custom_elements() {
         Plane,
         Sphere,
         Torus,
+
+        ControlPanel,
+        Slider,
 
         Marcher,
     ].forEach(element => {
