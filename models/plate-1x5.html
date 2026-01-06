@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Plate 2 x 4</title>
+    <title>Plate 1 x 5</title>
     <script type="module" src="../dist/main.js"></script>
     <link rel="stylesheet" href="../dist/main.css">
 </head>
@@ -10,29 +10,29 @@
 <x-marcher>
     <x-difference smoothing=".5" material="red">
         <x-union smoothing=".5">
-            <x-cube size="40 8 80" smoothing=".5"></x-cube>
+            <x-cube size="20 8 100" smoothing=".5"></x-cube>
             <x-intersection smoothing="1">
                 <x-plane normal="up" offset="8"></x-plane>
                 <x-plane normal="down"></x-plane>
-                <x-repeat start="-20 0 -40" end="20 0 40" step="20 0 20">
-                    <x-cylinder centre="10 0 10" radius="6"></x-cylinder>
+                <x-repeat start="-10 0 -50" end="10 0 50" step="20 0 20">
+                    <x-cylinder centre="10 0 10" direction="up" radius="6"></x-cylinder>
                 </x-repeat>
             </x-intersection>
         </x-union>
         <x-difference smoothing="1">
             <x-union smoothing="1">
-                <x-cube size="32 8 72" centre="0 -4 0" smoothing=".5"></x-cube>
+                <x-cube size="12 8 92" centre="0 -4 0" smoothing=".5"></x-cube>
                 <x-intersection smoothing="1">
                     <x-plane normal="up" offset="4"></x-plane>
-                    <x-repeat start="-20 0 -40" end="20 0 40" step="20 0 20">
-                        <x-cylinder centre="10 0 10" radius="3"></x-cylinder>
+                    <x-repeat start="-10 0 -50" end="10 0 50" step="20 0 20">
+                        <x-cylinder centre="10 0 10" direction="up" radius="3"></x-cylinder>
                     </x-repeat>
                 </x-intersection>
             </x-union>
-            <x-repeat start="-10 0 -30" end="10 0 30" step="20 0 20">
+            <x-repeat start="-10 0 -40" end="10 0 40" step="20 0 20">
                 <x-difference>
-                    <x-cylinder centre="10 0 10" radius="8"></x-cylinder>
-                    <x-cylinder centre="10 0 10" radius="6"></x-cylinder>
+                    <x-cylinder centre="10 0 10" direction="up" radius="4"></x-cylinder>
+                    <x-cylinder centre="10 0 10" direction="up" radius="2"></x-cylinder>
                 </x-difference>
             </x-repeat>
         </x-difference>

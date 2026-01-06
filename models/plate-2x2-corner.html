@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Plate 2 x 2 Corner</title>
+    <script type="module" src="../dist/main.js"></script>
+    <link rel="stylesheet" href="../dist/main.css">
+</head>
+<body>
+<x-marcher>
+    <x-difference smoothing=".5" material="red">
+        <x-union>
+            <x-difference>
+                <x-cube size="40 8 40"></x-cube>
+                <x-cube size="40 16 40" centre="20 0 20"></x-cube>
+            </x-difference>
+            <x-intersection smoothing="1">
+                <x-plane normal="up" offset="8"></x-plane>
+                <x-plane normal="down"></x-plane>
+                <x-difference>
+                    <x-repeat start="-20 0 -20" end="20 0 20" step="20 0 20">
+                        <x-cylinder centre="10 0 10" direction="up" radius="6"></x-cylinder>
+                    </x-repeat>
+                    <x-cube size="40 16 40" centre="20 0 20"></x-cube>
+                </x-difference>
+            </x-intersection>
+        </x-union>
+        <x-difference smoothing="1">
+            <x-union smoothing="1">
+                <x-difference smoothing=".5">
+                    <x-cube size="32 8 32" centre="0 -4 0"></x-cube>
+                    <x-cube size="28 16 28" centre="10 -4 10"></x-cube>
+                </x-difference>
+                <x-intersection smoothing="1">
+                    <x-plane normal="up" offset="4"></x-plane>
+                    <x-repeat start="-20 0 -20" end="20 0 20" step="20 0 20">
+                        <x-cylinder centre="10 0 10" direction="up" radius="3"></x-cylinder>
+                    </x-repeat>
+                </x-intersection>
+            </x-union>
+            <x-union>
+                <x-difference>
+                    <x-cylinder centre="0 0 -10" direction="up" radius="4"></x-cylinder>
+                    <x-cylinder centre="0 0 -10" direction="up" radius="2"></x-cylinder>
+                </x-difference>
+                <x-difference>
+                    <x-cylinder centre="-10 0 0" direction="up" radius="4"></x-cylinder>
+                    <x-cylinder centre="-10 0 0" direction="up" radius="2"></x-cylinder>
+                </x-difference>
+                <x-intersection smoothing=".5">
+                    <x-plane normal="-1 0 -1" offset="8"></x-plane>
+                    <x-plane normal="1 0 -1" offset="1.5"></x-plane>
+                    <x-plane normal="-1 0 1" offset="1.5"></x-plane>
+<!--                    <x-plane id="test" normal="down" offset="2"></x-plane>-->
+                </x-intersection>
+            </x-union>
+        </x-difference>
+    </x-difference>
+</x-marcher>
+
+<!--<x-control-panel>-->
+<!--    <x-slider for="test" attribute="offset" min="2" max="4" step="0.1"></x-slider>-->
+<!--</x-control-panel>-->
+</body>
+</html>

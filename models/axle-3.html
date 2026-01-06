@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Axle 3</title>
+    <script type="module" src="../dist/main.js"></script>
+    <link rel="stylesheet" href="../dist/main.css">
+</head>
+<body>
+    <x-marcher>
+        <x-intersection id="int-1" smoothing=".5" material="red">
+            <x-intersection id="int-2" smoothing="3">
+                <x-plane normal="left" offset="30"></x-plane>
+                <x-plane normal="right" offset="30"></x-plane>
+                <x-cylinder direction="right" radius="6"></x-cylinder>
+            </x-intersection>
+            <x-union id="union-1" smoothing="1">
+                <x-intersection id="int-3">
+                    <x-plane normal="up" offset="2.25"></x-plane>
+                    <x-plane normal="down" offset="2.25"></x-plane>
+                </x-intersection>
+                <x-intersection id="int-4">
+                    <x-plane normal="in" offset="2.25"></x-plane>
+                    <x-plane normal="out" offset="2.25"></x-plane>
+                </x-intersection>
+            </x-union>
+        </x-intersection>
+    </x-marcher>
+</body>
+</html>

@@ -9,16 +9,16 @@
 <body>
     <x-marcher>
         <x-difference smoothing=".5" material="red">
-            <x-intersection smoothing=".5">
+            <x-intersection>
                 <x-cylinder radius="10"></x-cylinder>
                 <x-plane normal="up" offset="4"></x-plane>
                 <x-plane normal="down" offset="4"></x-plane>
-                <x-union smoothing=".5">
+                <x-union>
                     <x-plane normal="down" offset="3"></x-plane>
                     <x-cylinder radius="9"></x-cylinder>
                 </x-union>
             </x-intersection>
-            <x-intersection smoothing=".5">
+            <x-intersection>
                 <x-cylinder radius="6"></x-cylinder>
                 <x-plane normal="up"></x-plane>
             </x-intersection>

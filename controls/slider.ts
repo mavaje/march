@@ -17,6 +17,7 @@ export class Slider extends Control {
         const control = super.render();
 
         const target = this.attribute_reference('for', Solid as any);
+        if (!target) return control;
         const attribute = this.getAttribute('attribute');
         const label_text = this.getAttribute('label') ?? attribute;
         const id = `slider-${target.name()}-${attribute}`;

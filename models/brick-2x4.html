@@ -9,8 +9,8 @@
 <body>
 <x-marcher>
     <x-difference smoothing=".5" material="red">
-        <x-union smoothing=".5">
-            <x-cube size="40 24 80" smoothing=".5"></x-cube>
+        <x-union>
+            <x-cube size="40 24 80"></x-cube>
             <x-intersection smoothing="1">
                 <x-plane id="plane" normal="up" offset="16"></x-plane>
                 <x-plane normal="down"></x-plane>
@@ -20,9 +20,9 @@
             </x-intersection>
         </x-union>
         <x-difference smoothing="1">
-            <x-union smoothing="1">
+            <x-union>
                 <x-cube size="32 24 72" centre="0 -4 0" smoothing=".5"></x-cube>
-                <x-intersection smoothing="1">
+                <x-intersection>
                     <x-plane normal="up" offset="12"></x-plane>
                     <x-repeat start="-20 0 -40" end="20 0 40" step="20 0 20">
                         <x-cylinder centre="10 0 10" radius="3"></x-cylinder>
@@ -38,9 +38,5 @@
         </x-difference>
     </x-difference>
 </x-marcher>
-
-<x-control-panel>
-    <x-slider for="plane" attribute="offset" min="10" max="20" step="1"></x-slider>
-</x-control-panel>
 </body>
 </html>
